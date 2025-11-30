@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 1. The UI
+  frontend:
+    build: ./frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  # 2. The Brain
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - REDIS_URL=redis://redis-db:6379
+      - PDF_SERVICE_URL=http://pdf-service:80
+    depends_on:
+      - ollama
+      - redis-db
+
+  # 3. The LLM
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    volumes:
+      - ollama_data:/root/.ollama
+
+  # 4. State Management
+  redis-db:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # 5. PDF Service
+  pdf-service:
+    build: ./pdf_service
+    ports:
+      - "5000:80"
+
+volumes:
+  ollama_data:
