@@ -94,6 +94,3 @@ To allow the application to read your reviews, the Google Sheet must be accessib
 | **Model Not Found** | Ensure you ran the `docker-compose exec...` command in Step 3 to download the model. |
 
 ---
-
-## 📄 License
-Distributed under the MIT License.
